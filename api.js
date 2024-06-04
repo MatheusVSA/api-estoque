@@ -29,24 +29,24 @@ const sqlite_banco = new sqlite3.Database(
     }
 );
 
-const sql_criar_tbProdutos = 
-`CREATE TABLE IF NOT EXISTS produtos(
-    ID INTEGER PRIMARY KEY AUTOINCREMENT,
-    nome_produto VARCHAR(100) NOT NULL,
-    quantidade INTEGER,
-    preco NUMERIC(10, 2) NOT NULL
-);`;
+// const sql_criar_tbProdutos = 
+// `CREATE TABLE IF NOT EXISTS produtos(
+//     ID INTEGER PRIMARY KEY AUTOINCREMENT,
+//     nome_produto VARCHAR(100) NOT NULL,
+//     quantidade INTEGER,
+//     preco NUMERIC(10, 2) NOT NULL
+// );`;
 
-sqlite_banco.run(
-    sql_criar_tbProdutos,
-    err => {
-        if(err != null){
-            console.log("Erro ao conectar " + sqlite_nome + err.message);
-        } else{
-            console.log("Conectado ao banco!");
-        }
-    }
-);
+// sqlite_banco.run(
+//     sql_criar_tbProdutos,
+//     err => {
+//         if(err != null){
+//             console.log("Erro ao conectar " + sqlite_nome + err.message);
+//         } else{
+//             console.log("Conectado ao banco!");
+//         }
+//     }
+// );
 
 //Listar produtos
 app_estoque.get('/', (request, response) => {
@@ -74,7 +74,7 @@ app_estoque.get('/', (request, response) => {
 //Inserir produto
 app_estoque.post('/inserirproduto', (request, response) => {
     const {nome_produto, quantidade, preco} = request.body;
-    const sql = `INSERT INTO produtos(nome_produto, quantidade, preco) VALUES (?, ?,?);`
+    const sql = `INSERT INTO produtos(nome_produto, quantidade, preco) VALUES (?,?,?);`
     sqlite_banco.run(
         sql,
         [nome_produto, quantidade, preco],
@@ -84,6 +84,26 @@ app_estoque.post('/inserirproduto', (request, response) => {
                 response.status(500).json({"status": "Erro ao inserir produto!"});
             } else{
                 console.log("Produto inserido com sucesso!");
+                response.redirect("/");
+            }
+        }
+    );
+});
+
+//excluir usuário
+app_estoque.delete('/excluirproduto/:id', (request, response) =>{
+    console.log("DELETE em '/excluirproduto'");
+    
+    const sql = `DELETE FROM produtos WHERE ID = ?`;
+    sqlite_banco.all(
+        sql,
+        [request.params.id],
+        (err, rows) => {
+            if (err != null){
+                console.log("Erro ao excluir produto" + sqlite_nome + err.message);
+                response.status(500).json({"status": "Erro ao excluir produto!"});
+            } else{
+                console.log("Produto excluido com sucesso!");
                 response.redirect("/");
             }
         }
