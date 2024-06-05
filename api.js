@@ -133,6 +133,7 @@ app_estoque.post('/editarproduto', (request, response) => {
                 response.status(500).json({"status": "Erro ao inserir produto!"});
             } else{
                 console.log("Produto alterado com sucesso!");
+                response.redirect("/");
             }
         }
     );
