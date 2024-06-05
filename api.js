@@ -73,6 +73,7 @@ app_estoque.get('/', (request, response) => {
 
 //Inserir produto
 app_estoque.post('/inserirproduto', (request, response) => {
+    //Recebe esses parametros do front end 
     const {nome_produto, quantidade, preco} = request.body;
     const sql = `INSERT INTO produtos(nome_produto, quantidade, preco) VALUES (?,?,?);`
     sqlite_banco.run(
@@ -90,21 +91,48 @@ app_estoque.post('/inserirproduto', (request, response) => {
     );
 });
 
-//excluir usuário
-app_estoque.delete('/excluirproduto/:id', (request, response) =>{
+//Excluir produto
+app_estoque.post('/excluirproduto', (request, response) =>{
     console.log("DELETE em '/excluirproduto'");
-    
+    //Recebe o id do front end 
+    const {id_produto} = request.body;
     const sql = `DELETE FROM produtos WHERE ID = ?`;
-    sqlite_banco.all(
+    sqlite_banco.run(
         sql,
-        [request.params.id],
-        (err, rows) => {
-            if (err != null){
+        [id_produto],
+        function(err){
+            if (err){
                 console.log("Erro ao excluir produto" + sqlite_nome + err.message);
                 response.status(500).json({"status": "Erro ao excluir produto!"});
             } else{
                 console.log("Produto excluido com sucesso!");
                 response.redirect("/");
+            }
+        }
+    );
+});
+
+//Editar Produto
+app_estoque.post('/editarproduto', (request, response) => {
+    console.log("POST em '/editarproduto'");
+    //Recebe esses parametros do front end 
+    const {id_produto, nome_produto, quantidade, preco} = request.body;
+    const sql = `UPDATE produtos SET nome_produto = ?, quantidade = ?, preco= ? WHERE ID = ?`;
+
+    sqlite_banco.run(
+        sql,
+        [
+            nome_produto,
+            quantidade,
+            preco,
+            id_produto
+        ],
+        err => {
+            if (err != null){
+                console.log("Erro ao alterar produto" + sqlite_nome + err.message);
+                response.status(500).json({"status": "Erro ao inserir produto!"});
+            } else{
+                console.log("Produto alterado com sucesso!");
             }
         }
     );
